@@ -36,7 +36,7 @@
       </div>
     </form>
     <section>
-      <div v-for="(savedSetup,i) in mirrorSetups" :key="i">
+      <div v-for="(savedSetup,i) in orderedSetups" :key="i">
         <hr>
         <hr>
         <hr>
@@ -80,6 +80,12 @@ export default Vue.extend({
   computed: {
     totalDPS(): number {
       return this.getTotalDPS(this.skillTree);
+    },
+    orderedSetups(): any[] {
+      if (!this.mirrorSetups) return [];
+      return this.mirrorSetups
+        .slice()
+        .sort((setupA, setupB) => this.getTotalDPS(setupB) - this.getTotalDPS(setupA));
     },
   },
   watch: {
