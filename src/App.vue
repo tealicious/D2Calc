@@ -1,29 +1,124 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+    <h3>{{totalDPS}}</h3>
+    <form @submit.prevent="saveSetup">
+      <div>
+      <label>Setup</label>
+      <input type="text" v-model="skillTree.setupName">
+      </div>
+      <div/>
+      <div>
+      <label>Golem Min-Damage</label>
+      <input type="number" v-model.number="skillTree.golemDmgMin">
+      </div>
+      <div>
+      <label>Golem Max-Damage</label>
+      <input type="number" v-model.number="skillTree.golemDmgMax">
+      </div>
+      <div>
+      <label>Skelly Damage</label>
+      <input type="number" v-model.number="skillTree.physSkellyDmg">
+      </div>
+      <div>
+      <label>Magi Skelly Damage</label>
+      <input type="number" v-model.number="skillTree.magiSkellyDmg">
+      </div>
+      <div>
+      <label>Num Mages</label>
+      <input type="number" v-model.number="skillTree.numMages">
+      </div>
+      <div>
+      <label>Amp damage?</label>
+      <input type="checkbox" v-model="skillTree.withAmpDamage">
+      </div>
+       <div>
+      <button type="submit">save</button>
+      </div>
+    </form>
+    <section>
+      <div v-for="(savedSetup,i) in mirrorSetups" :key="i">
+        <hr>
+        <hr>
+        <hr>
+        <template v-for="(key, value, j) in savedSetup">
+          <h3 v-if="j === 1" :key="`name_${i}_${value}`">{{getTotalDPS(savedSetup)}}</h3>
+          <p :key="`${i}_${value}`">{{value}}: <b>{{key}}</b></p>
+        </template>
+        <button @click="removesetup(i)">delete</button>
+      </div>
+    </section>
   </div>
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
-import HelloWorld from './components/HelloWorld.vue';
+
+const storedSetups = localStorage.getItem('setups');
+let mirroredSetups = null as any[]|null;
+if (storedSetups) {
+  mirroredSetups = JSON.parse(storedSetups);
+}
+const initSkillTree = () => ({
+  setupName: '',
+  golemDmgMin: 0,
+  golemDmgMax: 0,
+  physSkellyDmg: 0,
+  magiSkellyDmg: 0,
+  numMages: 0,
+  withAmpDamage: false,
+});
 
 export default Vue.extend({
   name: 'App',
-  components: {
-    HelloWorld,
+  data() {
+    return {
+      skillTree: initSkillTree(),
+      setups: mirroredSetups || [] as any,
+      mirrorSetups: mirroredSetups,
+    };
+  },
+  computed: {
+    totalDPS(): number {
+      return this.getTotalDPS(this.skillTree);
+    },
+  },
+  watch: {
+    setups() {
+      localStorage.setItem('setups', JSON.stringify(this.setups));
+      const fuq = localStorage.getItem('setups');
+      if (fuq !== null) {
+        this.mirrorSetups = JSON.parse(fuq);
+      }
+    },
+  },
+  methods: {
+    saveSetup() {
+      this.setups.push(this.skillTree);
+      this.skillTree = initSkillTree();
+    },
+    removesetup(idx: number): void {
+      this.setups.splice(idx, 1);
+    },
+    getTotalDPS(skillTree: any): number {
+      const golemDmgTotal = ((skillTree.golemDmgMin + skillTree.golemDmgMax) * 5) / 2;
+      const physSkellyDmgTotal = skillTree.physSkellyDmg * 8;
+      const magiSkellyDmgTotal = skillTree.magiSkellyDmg * skillTree.numMages;
+      const total = golemDmgTotal + physSkellyDmgTotal + magiSkellyDmgTotal;
+      return skillTree.withAmpDamage ? total + (total * 0.5) : total;
+    },
   },
 });
 </script>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+<style lang="scss">
+hr {
+  opacity:0;
+}
+form {
+  display:flex;
+  flex-flow:row wrap;
+  align-items:stretch;
+  >div {
+    flex: 1 1 50%;
+  }
 }
 </style>
