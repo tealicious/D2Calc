@@ -44,7 +44,7 @@
           <h3 v-if="j === 1" :key="`name_${i}_${value}`">{{getTotalDPS(savedSetup)}}</h3>
           <p :key="`${i}_${value}`">{{value}}: <b>{{key}}</b></p>
         </template>
-        <button @click="removesetup(i)">delete</button>
+        <button @click="removesetup(savedSetup.originalIndex)">delete</button>
       </div>
     </section>
   </div>
@@ -84,6 +84,10 @@ export default Vue.extend({
     orderedSetups(): any[] {
       if (!this.mirrorSetups) return [];
       return this.mirrorSetups
+        .map((setup, i) => {
+          setup.originalIndex = i;
+          return setup;
+        })
         .slice()
         .sort((setupA, setupB) => this.getTotalDPS(setupB) - this.getTotalDPS(setupA));
     },
