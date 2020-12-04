@@ -28,8 +28,8 @@
       <input type="number" v-model.number="skillTree.numMages">
       </div>
       <div>
-      <label>Amp damage?</label>
-      <input type="checkbox" v-model="skillTree.withAmpDamage">
+      <label>Amp damage %</label>
+      <input type="number" v-model.number="skillTree.ampDamage">
       </div>
        <div>
       <button type="submit">save</button>
@@ -65,7 +65,7 @@ const initSkillTree = () => ({
   physSkellyDmg: 0,
   magiSkellyDmg: 0,
   numMages: 0,
-  withAmpDamage: false,
+  ampDamage: 0,
 });
 
 export default Vue.extend({
@@ -113,8 +113,10 @@ export default Vue.extend({
       const golemDmgTotal = ((skillTree.golemDmgMin + skillTree.golemDmgMax) * 5) / 2;
       const physSkellyDmgTotal = skillTree.physSkellyDmg * 8;
       const magiSkellyDmgTotal = skillTree.magiSkellyDmg * skillTree.numMages;
-      const total = golemDmgTotal + physSkellyDmgTotal + magiSkellyDmgTotal;
-      return skillTree.withAmpDamage ? total + (total * 0.5) : total;
+      const totalPhys = golemDmgTotal + physSkellyDmgTotal;
+      return skillTree.ampDamage
+        ? totalPhys + (totalPhys * ((skillTree.ampDamage / 100) * 1)) + magiSkellyDmgTotal
+        : totalPhys + magiSkellyDmgTotal;
     },
   },
 });
