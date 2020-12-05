@@ -6,7 +6,6 @@
       <label>Setup</label>
       <input type="text" v-model="skillTree.setupName">
       </div>
-      <div/>
       <div>
       <label>Golem Min-Damage</label>
       <input type="number" v-model.number="skillTree.golemDmgMin">
@@ -35,18 +34,31 @@
       <button type="submit">save</button>
       </div>
     </form>
-    <section>
-      <div v-for="(savedSetup,i) in orderedSetups" :key="i">
-        <hr>
-        <hr>
-        <hr>
-        <template v-for="(key, value, j) in savedSetup">
-          <h3 v-if="j === 1" :key="`name_${i}_${value}`">{{getTotalDPS(savedSetup)}}</h3>
-          <p :key="`${i}_${value}`">{{value}}: <b>{{key}}</b></p>
-        </template>
-        <button @click="removesetup(savedSetup.originalIndex)">delete</button>
-      </div>
-    </section>
+    <hr>
+    <hr>
+    <hr>
+    <hr>
+      <table v-if="orderedSetups.length">
+          <tbody>
+            <template v-for="(savedSetup,i) in orderedSetups">
+            <tr :key="`row_dps_${i}`">
+              <th>Total DPS</th>
+              <th>{{getTotalDPS(savedSetup)}}</th>
+            </tr>
+            <tr v-for="(key, value) in savedSetup" :key="`row_cell_${i}_${value}`">
+              <th :key="`row_cell_${i}_${value}`">{{value}}</th>
+              <th :key="`row_cell_${i}_${key}`">{{key}}</th>
+            </tr>
+            <tr :key="`row_cell_${i}_button`">
+              <th>
+                <button @click="removesetup(savedSetup.originalIndex)"
+                :key="i">delete</button>
+              </th>
+            </tr>
+            <tr :key="`foo${i}`" class="blank_row"/>
+            </template>
+          </tbody>
+    </table>
   </div>
 </template>
 
@@ -125,12 +137,28 @@ export default Vue.extend({
 hr {
   opacity:0;
 }
+input {
+  width: 100%;
+}
 form {
   display:flex;
   flex-flow:row wrap;
   align-items:stretch;
+  margin-left:-1rem;
+  margin-right:-1rem;
   >div {
-    flex: 1 1 50%;
+    &:first-child {
+      flex: 0 1 100%;
+      position: relative;
+    }
+    padding:0 1rem;
+    flex: 1 1 45%;
   }
+}
+.blank_row {
+  height:5rem;
+}
+th:last-child:not(:only-child) {
+  text-align:right;
 }
 </style>
